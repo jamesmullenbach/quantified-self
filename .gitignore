@@ -49,3 +49,4 @@ credentials.tar.gz
 #firebase
 .firebase
 firebase-debug.log
+quantified-self-io-firebase-adminsdk.json
