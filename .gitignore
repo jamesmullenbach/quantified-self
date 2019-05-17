@@ -48,3 +48,4 @@ credentials.tar.gz
 
 #firebase
 .firebase
+firebase-debug.log
