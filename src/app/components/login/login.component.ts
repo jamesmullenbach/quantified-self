@@ -25,9 +25,7 @@ export class LoginComponent {
 
   @HostListener('window:signInWithCustomToken', ['$event'])
   signInWithCustomToken(event) {
-    debugger;
     this.afAuth.auth.signInWithCustomToken(event.detail.token).then((loggedInUser)=>{
-      debugger;
       this.redirectOrShowDataPrivacyDialog(loggedInUser);
     })
   }
@@ -36,17 +34,11 @@ export class LoginComponent {
   constructor(
     public authService: AppAuthService,
     private afAuth: AngularFireAuth,
-
     public userService: UserService,
     private router: Router,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
   ) {
-
-    this.authService.signOut();
-    this.authService.user.subscribe((user) => {
-      debugger;
-    })
   }
 
   async anonymousLogin() {

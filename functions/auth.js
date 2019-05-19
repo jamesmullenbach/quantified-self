@@ -23,7 +23,7 @@ const OAUTH_SCOPES = 'workout';
 const OAUTH_CALLBACK_PATH = '/authToken';
 
 // const OAUTH_CALLBACK_URI = `${req.protocol}://localhost:5002/quantified-self-io/us-central1${OAUTH_CALLBACK_PATH}`;
-const OAUTH_CALLBACK_URI = `http://localhost:5000/assets/authPopup.html`;
+const OAUTH_CALLBACK_URI = `http://localhost:4200/assets/authPopup.html`;
 
 /**
  * Creates a configured simple-oauth2 client for Suunto app.
