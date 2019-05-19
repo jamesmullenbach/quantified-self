@@ -23,14 +23,20 @@ export class LoginComponent {
 
   private logger = Log.create('LoginComponent');
 
-  @HostListener('window:customToken', ['$event'])
+  @HostListener('window:signInWithCustomToken', ['$event'])
   signInWithCustomToken(event) {
     debugger;
+    this.afAuth.auth.signInWithCustomToken(event.detail.token).then((loggedInUser)=>{
+      debugger;
+      this.redirectOrShowDataPrivacyDialog(loggedInUser);
+    })
   }
 
 
   constructor(
     public authService: AppAuthService,
+    private afAuth: AngularFireAuth,
+
     public userService: UserService,
     private router: Router,
     private snackBar: MatSnackBar,
@@ -84,13 +90,15 @@ export class LoginComponent {
     // Open the popup that will start the auth flow.
     // this.isLoggingIn = true;
     // const wnd = window.open('http://localhost:5001/quantified-self-io/us-central1/authRedirect', 'name', 'height=585,width=400');
-    const wnd = window.open('http://localhost:5001/quantified-self-io/us-central1/authPopup.html', 'name', 'height=585,width=400');
-    var pollTimer = window.setInterval(async () => {
-      if (wnd.closed !== false) { // !== is required for compatibility with Opera
-        window.clearInterval(pollTimer);
-        // debugger;
-      }
-    }, 200);
+    const wnd = window.open('assets/authPopup.html', 'name', 'height=585,width=400');
+    // var pollTimer = window.setInterval(async () => {
+    //   if (wnd.closed !== false) { // !== is required for compatibility with Opera
+    //     window.clearInterval(pollTimer);
+    //     const user = await this.afAuth.user.toPromise();
+    //     debugger;
+    //
+    //   }
+    // }, 200);
     // try {
     //   return this.redirectOrShowDataPrivacyDialog(await this.authService.suuntoAppLogin());
     // } catch (e) {

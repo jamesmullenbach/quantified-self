@@ -4,9 +4,9 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve ",
     "firebase-emulate": "firebase emulators:start",
-    "firebase-serve": "firebase serve",
+    "firebase-serve": "firebase serve ",
     "build": "ng build --verbose",
     "build-watch": "ng build --verbose --watch",
     "build-production": "ng build --verbose --prod",

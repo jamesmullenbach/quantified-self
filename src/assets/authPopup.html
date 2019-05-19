@@ -24,12 +24,8 @@
 Please wait...
 
 
-<!-- Import and configure the Firebase SDK -->
-<!-- These scripts are made available when the app is served or deployed on Firebase Hosting -->
-<!-- If you do not serve/host your project using Firebase Hosting see https://firebase.google.com/docs/web/setup -->
-<script src="/__/firebase/5.9.1/firebase-app.js"></script>
-<script src="/__/firebase/5.9.1/firebase-auth.js"></script>
-<script src="/__/firebase/init.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.0.2/firebase.js"></script>
+
 
 <script>
   /**
@@ -52,9 +48,14 @@ Please wait...
    */
   function tokenReceived(data) {
     if (data.token) {
-      firebase.auth().signInWithCustomToken(data.token).then(function(test) {
-        window.close();
-      });
+      window.opener.dispatchEvent(new CustomEvent("signInWithCustomToken", {
+        detail: {token: data.token}
+      }));
+      window.close();
+      // firebase.auth().signInWithCustomToken(data.token).then(function(test) {
+      //
+      //   window.close();
+      // });
     } else {
       console.error(data);
       document.body.innerText = 'Error in the token Function: ' + data.error;

@@ -20,8 +20,10 @@ const OAUTH_SCOPES = 'workout';
 
 
 // Path to the OAuth handlers.
-const OAUTH_REDIRECT_PATH = '/authRedirect';
 const OAUTH_CALLBACK_PATH = '/authToken';
+
+// const OAUTH_CALLBACK_URI = `${req.protocol}://localhost:5002/quantified-self-io/us-central1${OAUTH_CALLBACK_PATH}`;
+const OAUTH_CALLBACK_URI = `http://localhost:5000/assets/authPopup.html`;
 
 /**
  * Creates a configured simple-oauth2 client for Suunto app.
@@ -54,7 +56,7 @@ exports.redirect = functions.https.onRequest((req, res) => {
   console.log('Need a secure cookie (i.e. not on localhost)?', secureCookie);
   res.cookie('state', state, {maxAge: 3600000, secure: secureCookie, httpOnly: true});
   const redirectUri = oauth2.authorizationCode.authorizeURL({
-    redirect_uri: `${req.protocol}://localhost:5001/quantified-self-io/us-central1${OAUTH_CALLBACK_PATH}`, // @todo fix
+    redirect_uri: OAUTH_CALLBACK_URI,
     scope: OAUTH_SCOPES,
     state: state
   });
@@ -82,7 +84,7 @@ exports.token = functions.https.onRequest(async (req, res) => {
       console.log('Received auth code:', req.query.code);
       const results = await oauth2.authorizationCode.getToken({
         code: req.query.code,
-        redirect_uri: `${req.protocol}://localhost:5001/quantified-self-io/us-central1${OAUTH_CALLBACK_PATH}`, // @todo fix,
+        redirect_uri: OAUTH_CALLBACK_URI, // @todo fix,
         // redirect_uri: `${req.protocol}://${req.get('host')}${OAUTH_CALLBACK_PATH}`
       });
       console.log('Auth code exchange result received:', results);
@@ -158,7 +160,7 @@ function signInFirebaseTemplate(token) {
       };
       var app = firebase.initializeApp(config);
       app.auth().signInWithCustomToken(token).then(function(user) {
-        window.opener.dispatchEvent(new Event('socialSuccess'));
+        // window.opener.dispatchEvent(new Event('signInWithCustomToken'));
         // window.close();
       });
     </script>`;
