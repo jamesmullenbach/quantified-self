@@ -9,6 +9,8 @@ import {UserFormComponent} from '../user-forms/user.form.component';
 import {UserAgreementFormComponent} from '../user-forms/user-agreement.form.component';
 import * as Raven from "raven-js";
 import {Log} from "ng2-logger/browser";
+import {AngularFirestore} from "@angular/fire/firestore";
+import {AngularFireAuth} from "@angular/fire/auth";
 
 @Component({
   selector: 'app-login',
@@ -21,6 +23,11 @@ export class LoginComponent {
 
   private logger = Log.create('LoginComponent');
 
+  @HostListener('window:customToken', ['$event'])
+  signInWithCustomToken(event) {
+    debugger;
+  }
+
 
   constructor(
     public authService: AppAuthService,
@@ -29,6 +36,11 @@ export class LoginComponent {
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
   ) {
+
+    this.authService.signOut();
+    this.authService.user.subscribe((user) => {
+      debugger;
+    })
   }
 
   async anonymousLogin() {
@@ -69,15 +81,25 @@ export class LoginComponent {
   }
 
   async twitterLLogin() {
-    try {
-      return this.redirectOrShowDataPrivacyDialog(await this.authService.twitterLogin());
-    } catch (e) {
-      Raven.captureException(e);
-      this.logger.error(e);
-      this.snackBar.open(`Could not log in due to ${e}`, null, {
-        duration: 2000,
-      });
-    }
+    // Open the popup that will start the auth flow.
+    // this.isLoggingIn = true;
+    // const wnd = window.open('http://localhost:5001/quantified-self-io/us-central1/authRedirect', 'name', 'height=585,width=400');
+    const wnd = window.open('http://localhost:5001/quantified-self-io/us-central1/authPopup.html', 'name', 'height=585,width=400');
+    var pollTimer = window.setInterval(async () => {
+      if (wnd.closed !== false) { // !== is required for compatibility with Opera
+        window.clearInterval(pollTimer);
+        // debugger;
+      }
+    }, 200);
+    // try {
+    //   return this.redirectOrShowDataPrivacyDialog(await this.authService.suuntoAppLogin());
+    // } catch (e) {
+    //   Raven.captureException(e);
+    //   this.logger.error(e);
+    //   this.snackBar.open(`Could not log in due to ${e}`, null, {
+    //     duration: 2000,
+    //   });
+    // }
   }
 
 

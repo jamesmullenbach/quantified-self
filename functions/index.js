@@ -1,11 +1,19 @@
 'use strict';
-const fooFunction = require('./stWorkoutDownloadAsFit');
+const stWorkoutDownloadAsFit = require('./stWorkoutDownloadAsFit');
+const auth = require('./auth');
 
 // Note do below initialization tasks in index.js and
 // NOT in child functions:
 const functions = require('firebase-functions');
 
-// Pass database to child functions so they have access to it
 exports.stWorkoutDownloadAsFit = functions.https.onRequest((req, res) => {
-  fooFunction.handler(req, res, database);
+  stWorkoutDownloadAsFit.handler(req, res);
+});
+
+exports.authRedirect = functions.https.onRequest((req, res) => {
+  auth.redirect(req, res);
+});
+
+exports.authToken = functions.https.onRequest((req, res) => {
+  auth.token(req, res);
 });

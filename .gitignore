@@ -50,3 +50,5 @@ credentials.tar.gz
 .firebase
 firebase-debug.log
 quantified-self-io-firebase-adminsdk.json
+
+firebase functions:config:set suunto-app.client_id="c018e33a-a32c-48da-953a-546d881ae4c8" suunto-app.client_secret="c018e33a-a32c-48da-953a-546d881ae4c9"

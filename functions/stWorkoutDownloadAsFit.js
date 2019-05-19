@@ -6,19 +6,7 @@ const cors = require('cors')({origin: true});
 const fetch = require('node-fetch');
 // const admin = require('firebase-admin');
 // admin.initializeApp();
-/**
- * Returns the response body of the requested url, url should be encoded with encodeURIComponent if there are additional
- * parameters for the requested url.
- *
- * Example request using URL query parameters:
- *   https://us-central1-<project-id>.cloudfunctions.net/cors?url=https%3A%2F%2Fapi.ipify.org%3Fformat%3Djson
- * Example request using request body with cURL:
- *   curl -H 'Content-Type: application/json' \
- *        -d '{"url": "https://api.ipify.org/?format=json"}' \
- *        https://us-central1-<project-id>.cloudfunctions.net/cors
- *
- * This endpoint supports CORS.
- */
+
 exports.handler = functions.region('europe-west2').https.onRequest((req, res) => {
   cors(req, res, () => {
     console.log('Query:', req.query);
