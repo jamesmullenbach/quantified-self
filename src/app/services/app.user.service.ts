@@ -6,19 +6,20 @@ import {User} from 'quantified-self-lib/lib/users/user';
 import {Privacy} from 'quantified-self-lib/lib/privacy/privacy.class.interface';
 import {EventService} from './app.event.service';
 import {map, take} from 'rxjs/operators';
-import {AppThemes, UserAppSettingsInterface} from "quantified-self-lib/lib/users/user.app.settings.interface";
+import {AppThemes, UserAppSettingsInterface} from 'quantified-self-lib/lib/users/user.app.settings.interface';
 import {
   ChartThemes,
   DataTypeSettings,
   UserChartSettingsInterface, XAxisTypes
-} from "quantified-self-lib/lib/users/user.chart.settings.interface";
-import {DynamicDataLoader} from "quantified-self-lib/lib/data/data.store";
-import {UserSettingsInterface} from "quantified-self-lib/lib/users/user.settings.interface";
+} from 'quantified-self-lib/lib/users/user.chart.settings.interface';
+import {DynamicDataLoader} from 'quantified-self-lib/lib/data/data.store';
+import {UserSettingsInterface} from 'quantified-self-lib/lib/users/user.settings.interface';
 import {
   PaceUnits,
   SpeedUnits,
   UserUnitSettingsInterface, VerticalSpeedUnits
-} from "quantified-self-lib/lib/users/user.unit.settings.interface";
+} from 'quantified-self-lib/lib/users/user.unit.settings.interface';
+import {AngularFireAuth} from '@angular/fire/auth';
 
 
 @Injectable()
@@ -29,6 +30,7 @@ export class UserService implements OnDestroy {
   constructor(
     private afs: AngularFirestore,
     private eventService: EventService,
+    private afAuth: AngularFireAuth,
   ) {
   }
 
@@ -47,7 +49,7 @@ export class UserService implements OnDestroy {
 
   public async createOrUpdateUser(user: User) {
     if (!user.acceptedPrivacyPolicy || !user.acceptedDataPolicy) {
-      throw "User has not accepted privacy or data policy";
+      throw new Error('User has not accepted privacy or data policy');
     }
     const userRef: AngularFirestoreDocument = this.afs.doc(
       `users/${user.uid}`,
@@ -79,7 +81,9 @@ export class UserService implements OnDestroy {
     // @todo add try catch here if some events fail to delete
     // @todo delete auth user
     await Promise.all(promises);
-    return this.afs.collection('users').doc(user.uid).delete();
+    await this.afs.collection('userAccessTokens').doc(user.uid).delete();
+    await this.afs.collection('users').doc(user.uid).delete();
+    return this.afAuth.auth.currentUser.delete();
   }
 
 

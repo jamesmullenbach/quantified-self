@@ -95,7 +95,7 @@ export const authToken = functions.https.onRequest(async (req, res) => {
         redirect_uri: OAUTH_CALLBACK_URI, // @todo fix,
         // redirect_uri: `${req.protocol}://${req.get('host')}${OAUTH_CALLBACK_PATH}`
       });
-      console.log('Auth code exchange result received:', results);
+      // console.log('Auth code exchange result received:', results);
 
       // We have an access token and the user identity now.
       const accessToken = results.access_token;
@@ -122,13 +122,12 @@ export const authToken = functions.https.onRequest(async (req, res) => {
 /**
  * Creates a Firebase account with the given user profile and returns a custom auth token allowing
  * signing-in this account.
- * Also saves the accessToken to the datastore at /instagramAccessToken/$uid
  *
  * @returns {Promise<string>} The Firebase custom auth token in a promise.
  */
 async function createFirebaseAccount(serviceUserID:string, accessToken:string) {
   // The UID we'll assign to the user.
-  const uid = `suuntoApp:${serviceUserID}`;
+  const uid = `suuntoApp:${serviceUserID}`; // @todo fix
 
   // Save the access token to the Firestore
   // const databaseTask  = admin.firestore().collection('suuntoAppAccessTokens').doc(`${uid}`).set({accessToken: accessToken});
