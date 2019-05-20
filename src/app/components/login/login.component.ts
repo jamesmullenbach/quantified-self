@@ -78,7 +78,7 @@ export class LoginComponent {
     }
   }
 
-  async twitterLLogin() {
+  async suuntoAppLogin(){
     // Open the popup that will start the auth flow.
     // this.isLoggingIn = true;
     // const wnd = window.open('http://localhost:5001/quantified-self-io/us-central1/authRedirect', 'name', 'height=585,width=400');
@@ -100,6 +100,18 @@ export class LoginComponent {
     //     duration: 2000,
     //   });
     // }
+  }
+
+  async twitterLogin() {
+    try {
+      return this.redirectOrShowDataPrivacyDialog(await this.authService.twitterLogin());
+    } catch (e) {
+      Raven.captureException(e);
+      this.logger.error(e);
+      this.snackBar.open(`Could not log in due to ${e}`, null, {
+        duration: 2000,
+      });
+    }
   }
 
 
