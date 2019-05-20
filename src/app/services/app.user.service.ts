@@ -78,14 +78,15 @@ export class UserService implements OnDestroy {
     events.forEach((event) => {
       promises.push(this.eventService.deleteAllEventData(user, event.getID()));
     });
-    // @todo add try catch here if some events fail to delete
-    // @todo delete auth user
-    await Promise.all(promises);
-    await this.afs.collection('userAccessTokens').doc(user.uid).delete();
-    await this.afs.collection('users').doc(user.uid).delete();
-    return this.afAuth.auth.currentUser.delete();
+    try {
+      await Promise.all(promises);
+      await this.afs.collection('userAccessTokens').doc(user.uid).delete();
+      await this.afs.collection('users').doc(user.uid).delete();
+      return this.afAuth.auth.currentUser.delete();
+    } catch (e) {
+      throw e;
+    }
   }
-
 
 
   private getDefaultUserChartSettingsDataTypeSettings(): DataTypeSettings {
