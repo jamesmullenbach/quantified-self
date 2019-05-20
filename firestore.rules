@@ -23,5 +23,9 @@ service cloud.firestore {
           }
         }
     }
+
+    match /suuntoAppAccessTokens/{userID} {
+      allow read, write, create, update, delete: if request.auth.uid == userID;
+    }
   }
 }
