@@ -1,14 +1,16 @@
 'use strict';
 
-const functions = require('firebase-functions');
-const cors = require('cors')({origin: true});
+import * as functions from 'firebase-functions'
+import * as cors from "cors";
+
+const corsRequest = cors({origin: true});
 
 const fetch = require('node-fetch');
 // const admin = require('firebase-admin');
 // admin.initializeApp();
 
-exports.handler = functions.region('europe-west2').https.onRequest((req, res) => {
-  cors(req, res, () => {
+export const stWorkoutDownloadAsFit = functions.region('europe-west2').https.onRequest((req, res) => {
+  corsRequest(req, res, () => {
     console.log('Query:', req.query);
     console.log('Body:', req.body);
 
