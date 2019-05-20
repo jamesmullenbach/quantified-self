@@ -56,6 +56,12 @@ export class UserService implements OnDestroy {
     return Promise.resolve(user);
   }
 
+  public async setServiceAuthToken(user: User, serviceName: string, authToken: string) {
+    return this.afs.doc(
+      `userAccessTokens/${user.uid}`,
+    ).set({[serviceName]: authToken})
+  }
+
   public async updateUserProperties(user: User, propertiesToUpdate: any) {
     return this.afs.collection('users').doc(user.uid).update(propertiesToUpdate);
   }
@@ -103,5 +109,6 @@ export class UserService implements OnDestroy {
 
   ngOnDestroy() {
   }
+
 
 }

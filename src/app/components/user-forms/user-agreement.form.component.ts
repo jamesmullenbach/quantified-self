@@ -27,6 +27,8 @@ export class UserAgreementFormComponent implements OnInit {
   };
 
   public userFormGroup: FormGroup;
+  private serviceName?: string;
+  private authToken?: string;
 
   constructor(
     public dialogRef: MatDialogRef<UserAgreementFormComponent>,
@@ -38,8 +40,10 @@ export class UserAgreementFormComponent implements OnInit {
     private formBuilder: FormBuilder,
   ) {
     this.user = data.user; // Perhaps move to service?
+    this.serviceName = data.serviceName;
+    this.authToken = data.authToken;
     if (!this.user) {
-      throw  'Component needs user'
+      throw new Error('Component needs user');
     }
   }
 
@@ -83,6 +87,10 @@ export class UserAgreementFormComponent implements OnInit {
       this.user.acceptedTrackingPolicy = true;
       this.user.acceptedDiagnosticsPolicy = true;
       const dbUser = await this.userService.createOrUpdateUser(this.user);
+      // debugger;
+      if (this.serviceName && this.authToken) {
+        await this.userService.setServiceAuthToken(dbUser, this.serviceName, this.authToken);
+      }
       this.snackBar.open('User updated', null, {
         duration: 2000,
       });
@@ -91,7 +99,7 @@ export class UserAgreementFormComponent implements OnInit {
         duration: 2000,
       });
     } catch (e) {
-      debugger;
+      // debugger;
       this.snackBar.open('Could not update user', null, {
         duration: 2000,
       });

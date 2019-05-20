@@ -7,10 +7,10 @@ import {take} from 'rxjs/operators';
 import {UserService} from '../../services/app.user.service';
 import {UserFormComponent} from '../user-forms/user.form.component';
 import {UserAgreementFormComponent} from '../user-forms/user-agreement.form.component';
-import * as Raven from "raven-js";
-import {Log} from "ng2-logger/browser";
-import {AngularFirestore} from "@angular/fire/firestore";
-import {AngularFireAuth} from "@angular/fire/auth";
+import * as Raven from 'raven-js';
+import {Log} from 'ng2-logger/browser';
+import {AngularFirestore} from '@angular/fire/firestore';
+import {AngularFireAuth} from '@angular/fire/auth';
 
 @Component({
   selector: 'app-login',
@@ -24,10 +24,10 @@ export class LoginComponent {
   private logger = Log.create('LoginComponent');
 
   @HostListener('window:signInWithCustomToken', ['$event'])
-  signInWithCustomToken(event) {
-    this.afAuth.auth.signInWithCustomToken(event.detail.token).then((loggedInUser)=>{
-      this.redirectOrShowDataPrivacyDialog(loggedInUser);
-    })
+  async signInWithCustomToken(event) {
+    debugger;
+    const loggedInUser = await this.afAuth.auth.signInWithCustomToken(event.detail.firebaseAuthToken);
+    this.redirectOrShowDataPrivacyDialog(loggedInUser, event.detail.serviceName,  event.detail.serviceAuthToken);
   }
 
 
@@ -78,11 +78,11 @@ export class LoginComponent {
     }
   }
 
-  async suuntoAppLogin(){
+  async suuntoAppLogin() {
     // Open the popup that will start the auth flow.
     // this.isLoggingIn = true;
     // const wnd = window.open('http://localhost:5001/quantified-self-io/us-central1/authRedirect', 'name', 'height=585,width=400');
-    const wnd = window.open('assets/authPopup.html', 'name', 'height=585,width=400');
+    const wnd = window.open('assets/authPopup.html?signInWithService=true', 'name', 'height=585,width=400');
     // var pollTimer = window.setInterval(async () => {
     //   if (wnd.closed !== false) { // !== is required for compatibility with Opera
     //     window.clearInterval(pollTimer);
@@ -115,7 +115,7 @@ export class LoginComponent {
   }
 
 
-  private async redirectOrShowDataPrivacyDialog(loginServiceUser) {
+  private async redirectOrShowDataPrivacyDialog(loginServiceUser, serviceName?: string, authToken?: string) {
     this.isLoggingIn = true;
     try {
       const databaseUser = await this.userService.getUserByID(loginServiceUser.user.uid).pipe(take(1)).toPromise();
@@ -126,19 +126,21 @@ export class LoginComponent {
         });
         return;
       }
-      this.showUserAgreementFormDialog(new User(loginServiceUser.user.uid, loginServiceUser.user.displayName, loginServiceUser.user.photoURL))
+      this.showUserAgreementFormDialog(new User(loginServiceUser.user.uid, loginServiceUser.user.displayName, loginServiceUser.user.photoURL), serviceName, authToken)
     } catch (e) {
       Raven.captureException(e);
       this.isLoggingIn = false;
     }
   }
 
-  private showUserAgreementFormDialog(user: User) {
+  private showUserAgreementFormDialog(user: User, serviceName?: string, authToken?: string) {
     const dialogRef = this.dialog.open(UserAgreementFormComponent, {
       width: '75vw',
       disableClose: true,
       data: {
         user: user,
+        serviceName: serviceName,
+        authToken: authToken
       },
     });
 
@@ -149,7 +151,7 @@ export class LoginComponent {
 
   @HostListener('window:resize', ['$event'])
   getColumnsToDisplayDependingOnScreenSize(event?) {
-   return window.innerWidth < 600 ? 1 : 2;
+    return window.innerWidth < 600 ? 1 : 2;
   }
 
 }

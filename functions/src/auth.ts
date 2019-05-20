@@ -51,6 +51,7 @@ function suuntoAppOAuthClient() {
 export const authRedirect = functions.https.onRequest(async (req, res) => {
   const oauth2 = suuntoAppOAuthClient();
   const state = req.cookies ? req.cookies.state : crypto.randomBytes(20).toString('hex');
+  const signInWithService = req.query.signInWithService === 'true';
   console.log('Setting state cookie for verification:', state);
   const requestHost = req.get('host');
   let secureCookie = true;
@@ -59,6 +60,7 @@ export const authRedirect = functions.https.onRequest(async (req, res) => {
   }
   console.log('Need a secure cookie (i.e. not on localhost)?', secureCookie);
   res.cookie('state', state, {maxAge: 3600000, secure: secureCookie, httpOnly: true});
+  res.cookie('signInWithService', signInWithService, {maxAge: 3600000, secure: secureCookie, httpOnly: true});
   const redirectUri = oauth2.authorizationCode.authorizeURL({
     redirect_uri: OAUTH_CALLBACK_URI,
     scope: OAUTH_SCOPES,
@@ -78,6 +80,8 @@ export const authToken = functions.https.onRequest(async (req, res) => {
   const oauth2 = suuntoAppOAuthClient();
   try {
     return cookieParser()(req, res, async () => {
+      const signInWithService = req.cookies.signInWithService === 'true';
+      console.log('Should sign in:', signInWithService);
       console.log('Received verification state:', req.cookies.state);
       console.log('Received state:', req.query.state);
       if (!req.cookies.state) {
@@ -95,13 +99,18 @@ export const authToken = functions.https.onRequest(async (req, res) => {
 
       // We have an access token and the user identity now.
       const accessToken = results.access_token;
-      const suuntoAppUserID = results.user;
+      const suuntoAppUserName = results.user;
 
       // Create a Firebase account and get the Custom Auth Token.
-      const firebaseToken = await createFirebaseAccount(suuntoAppUserID, accessToken);
-      // Serve an HTML page that signs the user in and updates the user profile.
-      // res.send(signInFirebaseTemplate(firebaseToken));
-      return res.jsonp({ token: firebaseToken});
+      let firebaseToken;
+      if (signInWithService){
+        firebaseToken = await createFirebaseAccount(suuntoAppUserName, accessToken);
+      }
+      return res.jsonp({ 
+        firebaseAuthToken: firebaseToken,
+        serviceAuthToken: accessToken,
+        serviceName: 'Suunto App'
+      });
     });
   } catch(error) {
     return res.jsonp({
@@ -117,32 +126,29 @@ export const authToken = functions.https.onRequest(async (req, res) => {
  *
  * @returns {Promise<string>} The Firebase custom auth token in a promise.
  */
-async function createFirebaseAccount(suuntoappUser:string, accessToken:string) {
+async function createFirebaseAccount(serviceUserID:string, accessToken:string) {
   // The UID we'll assign to the user.
-  const uid = `suunto-app:${suuntoappUser}`;
+  const uid = `suuntoApp:${serviceUserID}`;
 
-  // Save the access token to the Firebase Realtime Database.
-  const databaseTask  = admin.firestore().collection('suuntoAppAccessTokens').doc(`${uid}`).set({accessToken: accessToken});
+  // Save the access token to the Firestore
+  // const databaseTask  = admin.firestore().collection('suuntoAppAccessTokens').doc(`${uid}`).set({accessToken: accessToken});
 
   // Create or update the user account.
-  const userCreationTask = admin.auth().updateUser(uid, {
-    displayName: suuntoappUser,
-    // photoURL: photoURL,
-  }).catch((error: any) => {
-    // If user does not exists we create it.
-    if (error.code === 'auth/user-not-found') {
+  try {
+    await admin.auth().updateUser(uid, {
+      displayName: serviceUserID,
+      // photoURL: photoURL,
+    })
+  }catch (e) {
+    if (e.code === 'auth/user-not-found') {
       return admin.auth().createUser({
         uid: uid,
-        displayName: suuntoappUser,
+        displayName: serviceUserID,
         // photoURL: photoURL,
       });
     }
-    throw error;
-  });
-
-  // Wait for all async task to complete then generate and return a custom auth token.
-  await Promise.all([userCreationTask, databaseTask]);
-
+    throw e;
+  }
   // Create a Firebase custom auth token.
   const token = await admin.auth().createCustomToken(uid);
   console.log('Created Custom token for UID "', uid, '" Token:', token);

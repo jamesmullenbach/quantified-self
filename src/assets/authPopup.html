@@ -15,7 +15,8 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="description" content="Demonstrates how to authorize Firebase with Instagram auth using Firebase Functions">
+  <meta name="description"
+        content="Demonstrates how to authorize Firebase with Instagram auth using Firebase Functions">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Authenticate with Instagram</title>
 </head>
@@ -47,9 +48,9 @@ Please wait...
    * This callback is called by the JSONP callback of the 'token' Firebase Function with the Firebase auth token.
    */
   function tokenReceived(data) {
-    if (data.token) {
+    if (data.firebaseAuthToken && data.serviceName && data.serviceAuthToken) {
       window.opener.dispatchEvent(new CustomEvent("signInWithCustomToken", {
-        detail: {token: data.token}
+        detail: {firebaseAuthToken: data.firebaseAuthToken, serviceName: data.serviceName, serviceAuthToken: data.serviceAuthToken}
       }));
       window.close();
       // firebase.auth().signInWithCustomToken(data.token).then(function(test) {
@@ -65,12 +66,13 @@ Please wait...
   var code = getURLParameter('code');
   var state = getURLParameter('state');
   var error = getURLParameter('error');
+  var signInWithService = getURLParameter('signInWithService') === 'true';
   if (error) {
     document.body.innerText = 'Error back from the service auth page: ' + error;
-  } else if(!code) {
+  } else if (!code) {
     // Start the auth flow.
     // window.location.href  = 'https://us-central1-' + getFirebaseProjectId() + '.cloudfunctions.net/redirect';
-    window.location.href  = 'http://localhost:5000/quantified-self-io/us-central1/authRedirect';
+    window.location.href = `http://localhost:5000/quantified-self-io/us-central1/authRedirect?signInWithService=${signInWithService}`;
   } else {
     // console.log(2)
     // Use JSONP to load the 'token' Firebase Function to exchange the auth code against a Firebase custom token.
