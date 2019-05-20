@@ -65,13 +65,13 @@ export class UserService implements OnDestroy {
   }
 
   public async deleteAllUserData(user: User) {
-    //
     const events = await this.eventService.getEventsForUser(user, [], 'startDate', false, 0).pipe(take(1)).toPromise();
     const promises = [];
     events.forEach((event) => {
       promises.push(this.eventService.deleteAllEventData(user, event.getID()));
     });
     // @todo add try catch here if some events fail to delete
+    // @todo delete auth user
     await Promise.all(promises);
     return this.afs.collection('users').doc(user.uid).delete();
   }

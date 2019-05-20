@@ -131,7 +131,6 @@ export class EventService implements OnDestroy {
       }))
       .snapshotChanges()
       .pipe(map((eventSnapshots) => {
-        // debugger;
         return eventSnapshots.reduce((eventIDS, eventSnapshot) => {
           eventIDS.push(eventSnapshot.payload.doc.id);
           return eventIDS;
