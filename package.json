@@ -5,13 +5,10 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve ",
-    "firebase-emulate": "firebase emulators:start",
-    "firebase-serve": "firebase serve ",
     "build": "ng build --verbose",
     "build-watch": "ng build --verbose --watch",
     "build-production": "ng build --verbose --prod",
     "deploy": "firebase deploy",
-    "deploy-functions": "firebase deploy --only functions",
     "build-and-deploy-prod": "npm run build-production && npm run deploy",
     "build-and-deploy-dev": "npm run build && npm run deploy",
     "test": "ng test",
