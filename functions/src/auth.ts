@@ -3,14 +3,9 @@
 import * as functions from 'firebase-functions'
 import * as cookieParser from "cookie-parser";
 import * as crypto from "crypto";
+import {suuntoAppOAuthClient} from "./suuntoAppOAuthClient";
+import * as admin from "firebase-admin";
 
-// Firebase Setup
-const admin = require('firebase-admin/lib/index');
-const serviceAccount = require('../../quantified-self-io-firebase-adminsdk.json');
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: `https://${process.env.GCLOUD_PROJECT}.firebaseio.com`,
-});
 
 // console.log(process.env)
 
@@ -25,24 +20,6 @@ const OAUTH_SCOPES = 'workout';
 // const OAUTH_CALLBACK_URI = `${req.protocol}://localhost:5002/quantified-self-io/us-central1${OAUTH_CALLBACK_PATH}`;
 const OAUTH_CALLBACK_URI = `http://localhost:4200/assets/authPopup.html`;
 
-/**
- * Creates a configured simple-oauth2 client for Suunto app.
- */
-function suuntoAppOAuthClient() {
-  // Instagram OAuth 2 setup
-  // TODO: Configure the `suunto-app.client_id` and `suunto-app.client_secret` Google Cloud environment variables.
-  const credentials = {
-    client: {
-      id: functions.config().suuntoapp.client_id,
-      secret: functions.config().suuntoapp.client_secret,
-    },
-    auth: {
-      tokenHost: 'https://cloudapi-oauth.suunto.com/',
-      // tokenPath: '/oauth/token',
-    },
-  };
-  return require('simple-oauth2').create(credentials);
-}
 
 /**
  * Redirects the User to the authentication consent screen. Also the 'state' cookie is set for later state
@@ -80,6 +57,7 @@ export const authToken = functions.https.onRequest(async (req, res) => {
   const oauth2 = suuntoAppOAuthClient();
   try {
     return cookieParser()(req, res, async () => {
+      const currentDate = new Date();
       const signInWithService = req.cookies.signInWithService === 'true';
       console.log('Should sign in:', signInWithService);
       console.log('Received verification state:', req.cookies.state);
@@ -95,7 +73,7 @@ export const authToken = functions.https.onRequest(async (req, res) => {
         redirect_uri: OAUTH_CALLBACK_URI, // @todo fix,
         // redirect_uri: `${req.protocol}://${req.get('host')}${OAUTH_CALLBACK_PATH}`
       });
-      // console.log('Auth code exchange result received:', results);
+      console.log('Auth code exchange result received:', results);
 
       // We have an access token and the user identity now.
       const accessToken = results.access_token;
@@ -112,9 +90,10 @@ export const authToken = functions.https.onRequest(async (req, res) => {
           access_token: results.access_token,
           refresh_token: results.refresh_token,
           token_type: results.token_type,
-          expires_in: results.expires_in,
+          expires_at: currentDate.setSeconds(results.expires_in),
           scope: results.scope,
           user: results.user,
+          date: currentDate
         },
         serviceName: 'Suunto App'
       });
