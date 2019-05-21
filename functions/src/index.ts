@@ -12,4 +12,5 @@ admin.initializeApp({
 export * from "./stWorkoutDownloadAsFit"
 export * from "./auth"
 export * from "./tokens"
+export * from "./insertToQueue"
 
