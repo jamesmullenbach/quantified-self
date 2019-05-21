@@ -108,7 +108,14 @@ export const authToken = functions.https.onRequest(async (req, res) => {
       }
       return res.jsonp({ 
         firebaseAuthToken: firebaseToken,
-        serviceAuthToken: accessToken,
+        serviceAuthResponse: {
+          access_token: results.access_token,
+          refresh_token: results.refresh_token,
+          token_type: results.token_type,
+          expires_in: results.expires_in,
+          scope: results.scope,
+          user: results.user,
+        },
         serviceName: 'Suunto App'
       });
     });
@@ -140,7 +147,7 @@ async function createFirebaseAccount(serviceUserID:string, accessToken:string) {
     })
   }catch (e) {
     if (e.code === 'auth/user-not-found') {
-      return admin.auth().createUser({
+      await admin.auth().createUser({
         uid: uid,
         displayName: serviceUserID,
         // photoURL: photoURL,

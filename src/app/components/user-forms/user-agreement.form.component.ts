@@ -7,6 +7,7 @@ import {User} from 'quantified-self-lib/lib/users/user';
 import {UserService} from '../../services/app.user.service';
 import {AppAuthService} from '../../authentication/app.auth.service';
 import {Router} from '@angular/router';
+import {AuthTokenResponse} from "../../authentication/authTokenResponse";
 
 
 @Component({
@@ -28,7 +29,7 @@ export class UserAgreementFormComponent implements OnInit {
 
   public userFormGroup: FormGroup;
   private serviceName?: string;
-  private authToken?: string;
+  private serviceAuthResponse?: AuthTokenResponse;
 
   constructor(
     public dialogRef: MatDialogRef<UserAgreementFormComponent>,
@@ -41,7 +42,7 @@ export class UserAgreementFormComponent implements OnInit {
   ) {
     this.user = data.user; // Perhaps move to service?
     this.serviceName = data.serviceName;
-    this.authToken = data.authToken;
+    this.serviceAuthResponse = data.serviceAuthResponse;
     if (!this.user) {
       throw new Error('Component needs user');
     }
@@ -88,8 +89,8 @@ export class UserAgreementFormComponent implements OnInit {
       this.user.acceptedDiagnosticsPolicy = true;
       const dbUser = await this.userService.createOrUpdateUser(this.user);
       // debugger;
-      if (this.serviceName && this.authToken) {
-        await this.userService.setServiceAuthToken(dbUser, this.serviceName, this.authToken);
+      if (this.serviceName && this.serviceAuthResponse) {
+        await this.userService.setServiceAuthToken(dbUser, this.serviceName, this.serviceAuthResponse);
       }
       this.snackBar.open('User updated', null, {
         duration: 2000,

@@ -11,6 +11,7 @@ import * as Raven from 'raven-js';
 import {Log} from 'ng2-logger/browser';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AngularFireAuth} from '@angular/fire/auth';
+import {AuthTokenResponse} from "../../authentication/authTokenResponse";
 
 @Component({
   selector: 'app-login',
@@ -25,9 +26,8 @@ export class LoginComponent {
 
   @HostListener('window:signInWithCustomToken', ['$event'])
   async signInWithCustomToken(event) {
-    debugger;
     const loggedInUser = await this.afAuth.auth.signInWithCustomToken(event.detail.firebaseAuthToken);
-    this.redirectOrShowDataPrivacyDialog(loggedInUser, event.detail.serviceName,  event.detail.serviceAuthToken);
+    this.redirectOrShowDataPrivacyDialog(loggedInUser, event.detail.serviceName,  event.detail.serviceAuthResponse);
   }
 
 
@@ -79,6 +79,7 @@ export class LoginComponent {
   }
 
   async suuntoAppLogin() {
+    this.isLoggingIn = true;
     // Open the popup that will start the auth flow.
     // this.isLoggingIn = true;
     // const wnd = window.open('http://localhost:5001/quantified-self-io/us-central1/authRedirect', 'name', 'height=585,width=400');
@@ -115,32 +116,35 @@ export class LoginComponent {
   }
 
 
-  private async redirectOrShowDataPrivacyDialog(loginServiceUser, serviceName?: string, authToken?: string) {
+  private async redirectOrShowDataPrivacyDialog(loginServiceUser, serviceName?: string, serviceAuthResponse?: AuthTokenResponse) {
     this.isLoggingIn = true;
     try {
       const databaseUser = await this.userService.getUserByID(loginServiceUser.user.uid).pipe(take(1)).toPromise();
       if (databaseUser) {
+        if (serviceName && serviceAuthResponse) {
+          await this.userService.setServiceAuthToken(databaseUser, serviceName, serviceAuthResponse)
+        }
         await this.router.navigate(['/dashboard']);
         this.snackBar.open(`Welcome back ${databaseUser.displayName || 'Anonymous'}`, null, {
           duration: 2000,
         });
         return;
       }
-      this.showUserAgreementFormDialog(new User(loginServiceUser.user.uid, loginServiceUser.user.displayName, loginServiceUser.user.photoURL), serviceName, authToken)
+      this.showUserAgreementFormDialog(new User(loginServiceUser.user.uid, loginServiceUser.user.displayName, loginServiceUser.user.photoURL), serviceName, serviceAuthResponse)
     } catch (e) {
       Raven.captureException(e);
       this.isLoggingIn = false;
     }
   }
 
-  private showUserAgreementFormDialog(user: User, serviceName?: string, authToken?: string) {
+  private showUserAgreementFormDialog(user: User, serviceName?: string, serviceAuthResponse?: AuthTokenResponse) {
     const dialogRef = this.dialog.open(UserAgreementFormComponent, {
       width: '75vw',
       disableClose: true,
       data: {
         user: user,
         serviceName: serviceName,
-        authToken: authToken
+        serviceAuthResponse: serviceAuthResponse
       },
     });
 

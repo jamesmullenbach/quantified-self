@@ -20,6 +20,7 @@ import {
   UserUnitSettingsInterface, VerticalSpeedUnits
 } from 'quantified-self-lib/lib/users/user.unit.settings.interface';
 import {AngularFireAuth} from '@angular/fire/auth';
+import {AuthTokenResponse} from "../authentication/authTokenResponse";
 
 
 @Injectable()
@@ -58,10 +59,10 @@ export class UserService implements OnDestroy {
     return Promise.resolve(user);
   }
 
-  public async setServiceAuthToken(user: User, serviceName: string, authToken: string) {
+  public async setServiceAuthToken(user: User, serviceName: string, serviceAuthResponse: AuthTokenResponse) {
     return this.afs.doc(
       `userAccessTokens/${user.uid}`,
-    ).set({[serviceName]: authToken})
+    ).set({[serviceName]: JSON.parse(JSON.stringify(serviceAuthResponse))})
   }
 
   public async updateUserProperties(user: User, propertiesToUpdate: any) {

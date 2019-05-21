@@ -48,9 +48,9 @@ Please wait...
    * This callback is called by the JSONP callback of the 'token' Firebase Function with the Firebase auth token.
    */
   function tokenReceived(data) {
-    if (data.firebaseAuthToken && data.serviceName && data.serviceAuthToken) {
+    if (data.firebaseAuthToken && data.serviceName && data.serviceAuthResponse) {
       window.opener.dispatchEvent(new CustomEvent("signInWithCustomToken", {
-        detail: {firebaseAuthToken: data.firebaseAuthToken, serviceName: data.serviceName, serviceAuthToken: data.serviceAuthToken}
+        detail: {firebaseAuthToken: data.firebaseAuthToken, serviceName: data.serviceName, serviceAuthResponse: data.serviceAuthResponse}
       }));
       window.close();
       // firebase.auth().signInWithCustomToken(data.token).then(function(test) {
