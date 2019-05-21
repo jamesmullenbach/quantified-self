@@ -72,7 +72,8 @@ Please wait...
   } else if (!code) {
     // Start the auth flow.
     // window.location.href  = 'https://us-central1-' + getFirebaseProjectId() + '.cloudfunctions.net/redirect';
-    window.location.href = `http://localhost:5000/quantified-self-io/us-central1/authRedirect?signInWithService=${signInWithService}`;
+    // @todo fix https://github.com/firebase/firebase-tools/issues/1314
+    window.location.href = `http://localhost:5000/quantified-self-io/us-central1/authRedirect/?signInWithService=${signInWithService}`;
   } else {
     // console.log(2)
     // Use JSONP to load the 'token' Firebase Function to exchange the auth code against a Firebase custom token.
@@ -81,12 +82,13 @@ Please wait...
     // This is the URL to the HTTP triggered 'token' Firebase Function.
     // See https://firebase.google.com/docs/functions.
     // var tokenFunctionURL = 'https://us-central1-' + getFirebaseProjectId() + '.cloudfunctions.net/token';
-    var tokenFunctionURL = 'http://localhost:5000/quantified-self-io/us-central1/authToken';
+    var tokenFunctionURL = 'http://localhost:5000/quantified-self-io/us-central1/authToken/';
     script.src = tokenFunctionURL +
       '?code=' + encodeURIComponent(code) +
       '&state=' + encodeURIComponent(state) +
       '&callback=' + tokenReceived.name;
     document.head.appendChild(script);
+    console.log(script.src);
   }
 </script>
 </body>

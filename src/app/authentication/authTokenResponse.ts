@@ -5,6 +5,6 @@ export interface AuthTokenResponse {
   expires_at: number;
   scope: string;
   user: string;
-  date: Date;
+  date: number;
 }
 

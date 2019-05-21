@@ -84,6 +84,8 @@ export class LoginComponent {
     // this.isLoggingIn = true;
     // const wnd = window.open('http://localhost:5001/quantified-self-io/us-central1/authRedirect', 'name', 'height=585,width=400');
     const wnd = window.open('assets/authPopup.html?signInWithService=true', 'name', 'height=585,width=400');
+
+    // @todo add close detection
     // var pollTimer = window.setInterval(async () => {
     //   if (wnd.closed !== false) { // !== is required for compatibility with Opera
     //     window.clearInterval(pollTimer);

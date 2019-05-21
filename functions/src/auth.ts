@@ -46,7 +46,6 @@ export const authRedirect = functions.https.onRequest(async (req, res) => {
   console.log('Redirecting to:', redirectUri);
   res.redirect(redirectUri);
 });
-
 /**
  * Exchanges a given auth code passed in the 'code' URL query parameter for a Firebase auth token.
  * The request also needs to specify a 'state' query parameter which will be checked against the 'state' cookie.
@@ -93,7 +92,7 @@ export const authToken = functions.https.onRequest(async (req, res) => {
           expires_at: currentDate.setSeconds(results.expires_in),
           scope: results.scope,
           user: results.user,
-          date: currentDate
+          date: currentDate.getTime()
         },
         serviceName: 'Suunto App'
       });
